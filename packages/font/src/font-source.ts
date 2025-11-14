@@ -46,7 +46,7 @@ class FontSource {
   }
 
   async _load(): Promise<void> {
-    const { postscriptName } = this.options;
+    const { postscriptName, variation } = this.options;
 
     let data = null;
 
@@ -70,6 +70,18 @@ class FontSource {
 
     if (data && 'fonts' in data) {
       throw new Error('Font collection is not supported');
+    }
+
+    // Apply variable font variation if specified
+    if (data && variation && 'getVariation' in data) {
+      try {
+        data = data.getVariation(variation);
+      } catch (error) {
+        console.warn(
+          `Failed to apply variation to font ${this.src}:`,
+          error instanceof Error ? error.message : error,
+        );
+      }
     }
 
     this.data = data;
