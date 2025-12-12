@@ -75,12 +75,36 @@ class FontSource {
     // Apply variable font variation if specified
     if (data && variation && 'getVariation' in data) {
       try {
+        // Warn about known WOFF2 limitation
+        if (data.type === 'WOFF2') {
+          console.warn(
+            `Warning: Applying variations to WOFF2 fonts may fail due to a fontkit limitation.\n` +
+              `If you encounter issues, use TTF/OTF format for variable fonts instead.\n` +
+              `Font: ${this.src}`,
+          );
+        }
+
         data = data.getVariation(variation);
       } catch (error) {
-        console.warn(
-          `Failed to apply variation to font ${this.src}:`,
-          error instanceof Error ? error.message : error,
-        );
+        const message =
+          error instanceof Error ? error.message : String(error);
+
+        // Provide helpful error message for WOFF2 variation issues
+        if (data.type === 'WOFF2' && message.includes('tables')) {
+          console.error(
+            `Failed to apply variation to WOFF2 font: ${this.src}\n` +
+              `This is a known fontkit limitation with WOFF2 variable fonts.\n` +
+              `Recommendation: Use TTF or OTF format for variable fonts instead.\n` +
+              `The base font will be used without variation.\n` +
+              `Original error: ${message}`,
+          );
+        } else {
+          console.warn(
+            `Failed to apply variation to font ${this.src}: ${message}`,
+          );
+        }
+
+        // Continue with base font (data is already set)
       }
     }
 

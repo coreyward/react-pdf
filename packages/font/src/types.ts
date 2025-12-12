@@ -94,8 +94,25 @@ export type RemoteOptions = {
 
 export type FontSourceOptions = {
   postscriptName?: string;
-  variation?: VariationSettings | string; // variation settings object or named variation
-  features?: OpenTypeFeatures; // OpenType feature settings
+  /**
+   * Variable font variation settings. Can be an object with axis values or a named variation string.
+   *
+   * @example
+   * { wght: 500, wdth: 90 } // Custom weight and width
+   * "Bold" // Named variation
+   *
+   * @important WOFF2 Limitation: Due to a known fontkit bug, applying variations to WOFF2
+   * fonts may fail. For variable fonts, use TTF or OTF format instead. WOFF2 fonts work
+   * perfectly without variations and with OpenType features.
+   */
+  variation?: VariationSettings | string;
+  /**
+   * OpenType feature settings to enable/disable specific typography features.
+   *
+   * @example
+   * { kern: true, liga: false, ss01: true }
+   */
+  features?: OpenTypeFeatures;
 } & RemoteOptions;
 
 export type FontSource = {
